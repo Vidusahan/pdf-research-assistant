@@ -1,0 +1,19 @@
+# Core RAG
+langchain==0.3.25
+langchain-community==0.3.24
+langchain-openai==0.3.18
+
+# Vector store
+faiss-cpu==1.11.0
+
+# PDF loading
+pypdf==5.4.0
+
+# Embeddings / LLM
+openai==1.84.0
+
+# UI
+streamlit==1.45.1
+
+# Utilities
+python-dotenv==1.1.0
