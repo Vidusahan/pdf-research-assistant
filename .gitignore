@@ -32,3 +32,5 @@ Thumbs.db
 
 # Streamlit
 .streamlit/secrets.toml
+
+venv/

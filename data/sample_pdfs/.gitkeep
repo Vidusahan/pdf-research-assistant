@@ -1,0 +1,3 @@
+# Place your test PDF files here.
+# Files in this folder are git-tracked so teammates can run tests.
+# Large PDFs: add to .gitignore if needed.
