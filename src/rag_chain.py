@@ -40,3 +40,19 @@ def run_query(chain, question: str) -> dict:
         "answer": result["answer"],
         "source_documents": result["context"],
     }
+
+def extract_citations(docs) -> list:
+    """
+    Extract citation strings from a list of Document objects.
+    """
+    citations = []
+    for doc in docs:
+        source = doc.metadata.get("source", "Unknown")
+        # Extract filename from path
+        import os
+        source = os.path.basename(source)
+        page = doc.metadata.get("page_number", doc.metadata.get("page", "?"))
+        citations.append(f"{source} (Page {page})")
+    
+    # Deduplicate while preserving order
+    return list(dict.fromkeys(citations))
