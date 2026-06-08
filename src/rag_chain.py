@@ -1,44 +1,42 @@
-from langchain.chains import RetrievalQA
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.runnables import RunnablePassthrough, RunnableParallel
+from langchain_core.output_parsers import StrOutputParser
 from src.prompts import get_prompt
 
 def build_rag_chain(vectorstore, k: int = 4):
     """
-    Build and return a RetrievalQA chain.
-    
-    Args:
-        vectorstore: A loaded FAISS vectorstore
-        k: Number of chunks to retrieve per query
-    
-    Returns:
-        A RetrievalQA chain instance
+    Build and return a RAG chain.
     """
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
 
     retriever = vectorstore.as_retriever(
         search_kwargs={"k": k}
     )
 
-    chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": get_prompt()},
+    prompt = get_prompt()
+
+    def format_docs(docs):
+        return "\n\n".join(doc.page_content for doc in docs)
+
+    rag_chain_from_docs = (
+        RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
+        | prompt
+        | llm
+        | StrOutputParser()
     )
 
-    return chain
+    rag_chain_with_source = RunnableParallel(
+        {"context": retriever, "question": RunnablePassthrough()}
+    ).assign(answer=rag_chain_from_docs)
 
+    return rag_chain_with_source
 
 def run_query(chain, question: str) -> dict:
     """
     Run a question through the RAG chain.
-    
-    Returns:
-        dict with keys: 'answer', 'source_documents'
     """
-    result = chain.invoke({"query": question})
+    result = chain.invoke(question)
     return {
-        "answer": result["result"],
-        "source_documents": result["source_documents"],
+        "answer": result["answer"],
+        "source_documents": result["context"],
     }

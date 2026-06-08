@@ -1,7 +1,7 @@
-langchain==0.3.25
-langchain-community==0.3.24
-langchain-google-genai>=2.1.5,<3.0.0
-google-generativeai>=0.8.3
+langchain
+langchain-community
+langchain-google-genai
+google-generativeai
 faiss-cpu==1.11.0
 pypdf==5.4.0
 Pillow>=10.0.0
